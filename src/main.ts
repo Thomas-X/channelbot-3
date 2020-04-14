@@ -9,7 +9,3 @@ import {Core} from "./Core";
     let core = Container.get(Core);
     await core.main();
 })();
-
-
-
-

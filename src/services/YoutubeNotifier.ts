@@ -56,6 +56,5 @@ export class YoutubeNotifier implements IService {
             console.log(data);
         });
 
-        this.notifier.subscribe('Thomas Zwarts');
     }
 }

@@ -25,7 +25,7 @@ export class Database implements IService {
                 "build/models/**/*.js"
             ],
             synchronize: true,
-            logging: true
+            // logging: true
         });
     }
 }

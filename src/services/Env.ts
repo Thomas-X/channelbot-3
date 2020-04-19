@@ -20,6 +20,13 @@ export interface EnvOpts {
 
     // youtube-notification underlying server running on this port
     PORT: string | number,
+
+    // reddit
+    REDDIT_USER_AGENT: string,
+    REDDIT_CLIENT_ID: string,
+    REDDIT_CLIENT_SECRET: string,
+    REDDIT_USERNAME: string,
+    REDDIT_PASSWORD: string,
 }
 
 type EnvReturnTypecasted =
@@ -46,7 +53,12 @@ export class Env {
             MYSQL_USERNAME,
             REDIS_DB_HOST,
             REDIS_DB_PORT,
-            REDIS_DB_NAME
+            REDIS_DB_NAME,
+            REDDIT_USER_AGENT,
+            REDDIT_CLIENT_ID,
+            REDDIT_CLIENT_SECRET,
+            REDDIT_USERNAME,
+            REDDIT_PASSWORD
         } = process.env as unknown as EnvOpts;
         return {
             HUB_CALLBACK,
@@ -60,7 +72,12 @@ export class Env {
             MYSQL_USERNAME,
             REDIS_DB_HOST,
             REDIS_DB_PORT: Number(REDIS_DB_PORT) as number,
-            REDIS_DB_NAME: Number(REDIS_DB_NAME) as number
+            REDIS_DB_NAME: Number(REDIS_DB_NAME) as number,
+            REDDIT_USER_AGENT,
+            REDDIT_CLIENT_ID,
+            REDDIT_CLIENT_SECRET,
+            REDDIT_USERNAME,
+            REDDIT_PASSWORD
         }
     }
 }

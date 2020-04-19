@@ -7,8 +7,9 @@ import {Env} from "./Env";
 @Service()
 export class Redis implements IService {
     client: RedisClient;
-    hget: (key: string, field: string) => Promise<any>;
-    hset: (hashTableKey: string, fieldName: string, fieldValue: string) => Promise<any>;
+    set: (key: string, value: string) => Promise<any>;
+    get: (key: string) => Promise<any>;
+    keys: (pattern: string) => Promise<any>;
 
     constructor(
         private readonly env: Env
@@ -19,11 +20,12 @@ export class Redis implements IService {
             port: vars.REDIS_DB_PORT,
             db: vars.REDIS_DB_NAME,
         });
-        this.hset = promisify(this.client.hset).bind(this.client) as unknown as (hashTableKey: string, fieldName: string, fieldValue: string) => Promise<any>;
-        this.hget = promisify(this.client.hget).bind(this.client) as unknown as (key: string, field: string) => Promise<any>;
+        this.set = promisify(this.client.set).bind(this.client) as unknown as (key: string, value: string) => Promise<any>;
+        this.get = promisify(this.client.get).bind(this.client) as unknown as (key: string) => Promise<any>;
+        this.keys = promisify(this.client.keys).bind(this.client) as unknown as (pattern: string) => Promise<any>;
     }
 
-    setup(): void {
+    async setup(): Promise<void> {
 
     }
 

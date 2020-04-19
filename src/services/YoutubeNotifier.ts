@@ -21,6 +21,9 @@ export class YoutubeNotifier implements IService {
             path: vars.HUB_PATH
         });
         this.notifier.setup();
+
+        this.setup.bind(this);
+        this.registerEvents.bind(this);
     }
 
     async setup(): Promise<void> {

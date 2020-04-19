@@ -1,3 +1,3 @@
 export interface IService {
-    setup(): void;
+    setup(): Promise<void>;
 }

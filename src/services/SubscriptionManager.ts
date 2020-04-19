@@ -15,11 +15,12 @@ export class SubscriptionManager implements IService {
     // This method checks every X seconds if the subscriptions with the pubsubhubbub API have to be refreshed
     run = async () => {
         const keys = await this.redis.keys("*");
-        const now = Date.now();
+        const now = Date.now() / 1000;
         const subscribes = [];
         for (const key of keys) {
             const time = Number(await this.redis.get(key));
-            if (time - now > 10000) {
+            if (time - now < 10000) {
+                console.log("re-subscribing", time, now, time-now);
                 subscribes.push(new Promise((resolve) => {
                     this.youtubeNotifier.notifier.subscribe(key);
                     resolve();

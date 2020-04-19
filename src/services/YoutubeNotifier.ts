@@ -22,8 +22,6 @@ export class YoutubeNotifier implements IService {
         });
         this.notifier.setup();
 
-        this.setup.bind(this);
-        this.registerEvents.bind(this);
     }
 
     async setup(): Promise<void> {
@@ -38,6 +36,7 @@ export class YoutubeNotifier implements IService {
         });
 
         this.notifier.on("subscribe", data => {
+            console.log(data);
             for (const cb of this.onSubscribe) {
                 cb(data);
             }
@@ -50,13 +49,13 @@ export class YoutubeNotifier implements IService {
         });
 
         this.onSubscribe.push(data => {
-            console.log(data);
+            console.log("we should probably do something with this onSubscribe!: ", data);
         });
         this.onUnsubscribe.push(data => {
-            console.log(data);
+            console.log("we should probably do something with this onUnsubscribe!: ", data);
         });
         this.onNotified.push(data => {
-            console.log(data);
+            console.log("we should probably do something with this onNotified!: ", data);
         });
 
     }

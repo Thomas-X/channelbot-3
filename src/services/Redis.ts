@@ -10,6 +10,7 @@ export class Redis implements IService {
     set: (key: string, value: string) => Promise<any>;
     get: (key: string) => Promise<any>;
     keys: (pattern: string) => Promise<any>;
+    del: (key: string) => Promise<any>;
 
     constructor(
         private readonly env: Env
@@ -23,6 +24,7 @@ export class Redis implements IService {
         this.set = promisify(this.client.set).bind(this.client) as unknown as (key: string, value: string) => Promise<any>;
         this.get = promisify(this.client.get).bind(this.client) as unknown as (key: string) => Promise<any>;
         this.keys = promisify(this.client.keys).bind(this.client) as unknown as (pattern: string) => Promise<any>;
+        this.del = promisify(this.client.del).bind(this.client) as unknown as (key: string) => Promise<any>;
     }
 
     async setup(): Promise<void> {

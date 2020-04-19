@@ -7,9 +7,6 @@ export class Channel extends OverrideBaseEntity {
     id!: string;
 
     @Column()
-    channel!: string;
-
-    @Column()
     channel_id!: string;
 
     @Column()
@@ -17,16 +14,6 @@ export class Channel extends OverrideBaseEntity {
 
     @Column()
     user!: string;
-
-    @Column()
-    register_date!: number;
-
-    // Don't do overly complicated things with checking if we missed videos that
-    // were published when we were offline like the fatal mistake last time.
-
-    @Column("timestamp")
-    lease_expiration!: Date;
-
 
 
     // Always the same as channel_id in dataset, not needed

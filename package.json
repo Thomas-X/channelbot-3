@@ -11,10 +11,12 @@
   "author": "Thomas-X",
   "license": "MIT",
   "dependencies": {
+    "@types/axios": "^0.14.0",
     "@types/node": "^13.11.1",
     "@types/redis": "^2.8.17",
     "@types/snoowrap": "^1.19.0",
     "@types/uuid": "^7.0.2",
+    "axios": "^0.19.2",
     "dotenv": "^8.2.0",
     "mysql": "^2.18.1",
     "nodemon": "^2.0.3",

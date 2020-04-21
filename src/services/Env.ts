@@ -27,6 +27,9 @@ export interface EnvOpts {
     REDDIT_CLIENT_SECRET: string,
     REDDIT_USERNAME: string,
     REDDIT_PASSWORD: string,
+
+    // youtube
+    YOUTUBE_API_KEY: string,
 }
 
 export type EnvReturnTypecasted =
@@ -58,7 +61,8 @@ export class Env {
             REDDIT_CLIENT_ID,
             REDDIT_CLIENT_SECRET,
             REDDIT_USERNAME,
-            REDDIT_PASSWORD
+            REDDIT_PASSWORD,
+            YOUTUBE_API_KEY
         } = process.env as unknown as EnvOpts;
         return {
             HUB_CALLBACK,
@@ -77,7 +81,8 @@ export class Env {
             REDDIT_CLIENT_ID,
             REDDIT_CLIENT_SECRET,
             REDDIT_USERNAME,
-            REDDIT_PASSWORD
+            REDDIT_PASSWORD,
+            YOUTUBE_API_KEY
         }
     }
 }

@@ -1,7 +1,10 @@
 import {IService} from "./interfaces/IService";
-import {Service} from "typedi";
+import {Inject, Service} from "typedi";
 import YouTubeNotifier, {SubscribeEvent, UnsubscribeEvent, VideoEvent} from "youtube-notification";
 import {Env} from "./Env";
+import {getConnection} from "typeorm";
+import {Channel} from "../models/Channel";
+import {Reddit} from "./Reddit";
 
 @Service({global: true})
 export class YoutubeNotifier implements IService {
@@ -11,7 +14,7 @@ export class YoutubeNotifier implements IService {
     onSubscribe: Array<(data: SubscribeEvent) => void> = [];
 
     constructor(
-        private readonly env: Env
+        private readonly env: Env,
     ) {
         const vars = this.env.get();
         this.notifier = new YouTubeNotifier({
@@ -25,37 +28,30 @@ export class YoutubeNotifier implements IService {
     }
 
     async setup(): Promise<void> {
+
         await this.registerEvents();
     }
 
     async registerEvents() {
         this.notifier.on("notified", data => {
+            console.log("internal onnotified", data);
             for (const cb of this.onNotified) {
                 cb(data);
             }
         });
 
         this.notifier.on("subscribe", data => {
-            console.log(data);
+            console.log("subscribe", data)
             for (const cb of this.onSubscribe) {
                 cb(data);
             }
         });
 
         this.notifier.on("unsubscribe", data => {
+            console.log("unsubscribe", data)
             for (const cb of this.onUnsubscribe) {
                 cb(data);
             }
-        });
-
-        this.onSubscribe.push(data => {
-            console.log("we should probably do something with this onSubscribe!: ", data);
-        });
-        this.onUnsubscribe.push(data => {
-            console.log("we should probably do something with this onUnsubscribe!: ", data);
-        });
-        this.onNotified.push(data => {
-            console.log("we should probably do something with this onNotified!: ", data);
         });
 
     }

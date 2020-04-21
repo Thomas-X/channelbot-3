@@ -1,4 +1,4 @@
-import {Service} from "typedi";
+import {Inject, Service} from "typedi";
 import {IService} from "./interfaces/IService";
 import {Env} from "./Env";
 import snoowrap, {PrivateMessage, Comment} from "snoowrap";
@@ -6,6 +6,8 @@ import {getConnection, Repository} from "typeorm";
 import {Channel} from "../models/Channel";
 import {Redis} from "./Redis";
 import {YoutubeNotifier} from "./YoutubeNotifier";
+import {VideoEvent} from "youtube-notification";
+import axios from "axios";
 
 export enum Commands {
     list = "list",
@@ -42,7 +44,6 @@ export class Reddit implements IService {
     }
 
     addCommandParser = async (vals: CommandValues, message: PrivateMessage) => {
-        // TODO check if channel_id is null, if yes fetch it from youtube API. (we have no need to store actual channel name)
         const exists = await this.channelRepository.findOne({
             where: {
                 user: message.author.name,
@@ -51,7 +52,6 @@ export class Reddit implements IService {
             }
         });
         if (!!exists) return "I'm sorry, but you've already added those parameters to my inner thoughts.";
-        if (!vals.channel_id) return "My maker hasn't implemented this feature (channel->channel_id) yet.";
 
         let e = this.channelRepository.create();
         e.channel_id = String(vals.channel_id);
@@ -66,8 +66,20 @@ export class Reddit implements IService {
         return "Thank you for your message, I've processed it and you can expect me to start posting within a minute after a video has been uploaded to that channel. Max 5 min before everything is setup on my end, depending on server load."
     };
 
+    getChannelIdFromChannelName = async (channelName: string): Promise<string | undefined> => {
+        const vars = this.env.get();
+        const res = (await axios.get(`https://www.googleapis.com/youtube/v3/channels?key=${vars.YOUTUBE_API_KEY}&forUsername=${encodeURI(channelName)}&part=id`
+        )).data as unknown as {
+            items: { id: string }[] | []
+        };
+        console.log(res, `https://www.googleapis.com/youtube/v3/channels?key=${vars.YOUTUBE_API_KEY}&forUsername=${encodeURI(channelName)}&part=id`);
+        if (!res.items) throw new Error("Something went horribly wrong when talking to the Youtube API. " + JSON.stringify(res));
+        const channel = res.items.length > 0 ? res.items[0] : undefined;
+        if (!channel) return "Could not convert channel parameter to channel_id, check out the wiki and my subreddit for help. \n\nYou can also retry your request but with the channel_id parameter instead if you're certain there's been a mistake from my end. Or use the googler if you don't know how to convert channel names to channelIDs, but only as a last resort.";
+        return channel.id
+    };
+
     removeCommandParser = async (vals: CommandValues, message: PrivateMessage) => {
-        // TODO check if channel_id is null, if yes fetch it from youtube API. (we have no need to store actual channel name)
         const exists = await this.channelRepository.findOne({
             where: {
                 user: message.author.name,
@@ -76,7 +88,6 @@ export class Reddit implements IService {
             }
         });
         if (!exists || exists.user !== message.author.name) return "I'm sorry, but you either don't own this association or it does not exist.";
-        if (!vals.channel_id) return "My maker hasn't implemented this feature (channel->channel_id) yet. Or at least, not correctly. Go bug him.";
 
         await this.youtubeNotifier.notifier.unsubscribe(exists.channel_id);
         await this.redis.del(exists.id);
@@ -114,17 +125,17 @@ export class Reddit implements IService {
         return str;
     };
 
-    parser = async (body: string[][], message: PrivateMessage, cb: (vals: CommandValues, message: PrivateMessage) => Promise<string>): Promise<string> => {
+    parser = async (body: string[][], message: PrivateMessage, cb: (vals: CommandValues, message: PrivateMessage) => Promise<string>, command: Commands): Promise<string> => {
         let vals: CommandValues = {
-            channel: "",
-            channel_id: "",
+            channel: undefined,
+            channel_id: undefined,
             subreddit: ""
         };
         let response = "";
         console.log(body);
         for (const e of body) {
             let [key, value] = e;
-            console.log(key,value);
+            console.log(key, value);
             if (key === "channel") {
                 vals.channel = value;
             } else if (key === "channel_id") {
@@ -138,6 +149,14 @@ export class Reddit implements IService {
         }
         console.log(vals);
         if (response.length > 0) return response;
+
+        if (vals.channel_id === undefined && (
+            command === Commands.add ||
+            command === Commands.remove
+        )) {
+            if (vals.channel === undefined) return "Parameters channel_id AND channel were both empty, not continueing. Check the subreddit (/r/channelbot) and wiki for help, you probably had a mistake in your formatting of your message to me."
+            vals.channel_id = await this.getChannelIdFromChannelName(vals.channel);
+        }
         return cb(vals, message);
     };
 
@@ -152,15 +171,16 @@ export class Reddit implements IService {
                 return [a, b.trim()]
             })
             .filter(x => !!x) as unknown as string[][];
-        switch (subject.toLowerCase()) {
+        const cmd = subject.toLowerCase() as Commands;
+        switch (cmd) {
             case Commands.add:
-                r = await this.parser(p, body, this.addCommandParser);
+                r = await this.parser(p, body, this.addCommandParser, cmd);
                 break;
             case Commands.list:
-                r = await this.parser(p, body, this.listCommandParser);
+                r = await this.parser(p, body, this.listCommandParser, cmd);
                 break;
             case Commands.remove:
-                r = await this.parser(p, body, this.removeCommandParser);
+                r = await this.parser(p, body, this.removeCommandParser, cmd);
                 break;
             default:
                 r = "I couldn't parse your message, I'm sorry. Did you misspell the subject by accident?";
@@ -168,21 +188,53 @@ export class Reddit implements IService {
         return r;
     };
 
+    postVideo = (channel: Channel, data: VideoEvent) => {
+        this.client.getSubreddit(channel.subreddit)
+            // Docs say more values are allowed than what is in typings (submitlink opts)
+            .submitLink(<any>{
+                url: data.video.link,
+                title: data.video.title,
+                sendReplies: false
+            })
+            .then(x => console.log(x))
+            .catch(err => console.log(err));
+    };
+
     // Check unread messages
     run = async () => {
         const messages = await this.client.getUnreadMessages();
-        const responses = [];
+        console.log("messages: ", messages);
         for (const message of messages) {
-            // console.log(message);
-            responses.push(await this.parseMessage(message, message.subject as Commands));
-        }
-        for (const response of responses) {
-            console.log(response);
+            // mark as read incase it's a message we really can't process, and we don't want to get stuck on that message every cycle.
+            message.markAsRead()
+                .then(x => console.log("read ", x))
+                .catch(err => console.log(err));
+            message.reply(
+                await this.parseMessage(message, message.subject as Commands)
+            )
+                .then(x => console.log("reply ", x))
+                .catch(err => console.log(err));
         }
 
     };
 
     async setup(): Promise<void> {
+        this.youtubeNotifier.onNotified.push((d) => {
+            console.log("on notified", d);
+            getConnection()
+                .getRepository(Channel)
+                .find({
+                    where: {
+                        channel_id: d.channel.id
+                    }
+                })
+                .then(async (x) => {
+                    for (const channel of x) {
+                        await this.postVideo(channel, d);
+                    }
+                })
+                .catch(err => console.log(err));
+        });
         setInterval(this.run, 10000);
     }
 

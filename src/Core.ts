@@ -17,13 +17,11 @@ export class Core {
 
     // Setup services
     async main() {
+        await this.reddit.setup();
         await this.youtubeNotifier.setup();
-
 
         await this.redis.setup();
         await this.subscriptionManager.setup();
-
-        await this.reddit.setup();
-        console.log('started')
+        console.log("started")
     }
 }

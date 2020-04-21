@@ -212,13 +212,16 @@ export class Reddit implements IService {
         for (const message of messages) {
             // mark as read incase it's a message we really can't process, and we don't want to get stuck on that message every cycle.
             message.markAsRead()
-                .then(x => console.log("read ", x))
+                .then(async (x) => {
+                    console.log("read ", x);
+                    message.reply(
+                        await this.parseMessage(message, message.subject as Commands)
+                    )
+                        .then(x => console.log("reply ", x))
+                        .catch(err => console.log(err));
+                })
                 .catch(err => console.log(err));
-            message.reply(
-                await this.parseMessage(message, message.subject as Commands)
-            )
-                .then(x => console.log("reply ", x))
-                .catch(err => console.log(err));
+
         }
 
     };
@@ -240,7 +243,7 @@ export class Reddit implements IService {
                 })
                 .catch(err => console.log(err));
         });
-        setInterval(this.run, 10000);
+        setInterval(this.run, 30000);
     }
 
 }

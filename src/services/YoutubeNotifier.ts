@@ -5,6 +5,7 @@ import {Env} from "./Env";
 import {getConnection} from "typeorm";
 import {Channel} from "../models/Channel";
 import {Reddit} from "./Reddit";
+import {add, differenceInSeconds} from "date-fns";
 
 @Service({global: true})
 export class YoutubeNotifier implements IService {
@@ -35,8 +36,12 @@ export class YoutubeNotifier implements IService {
     async registerEvents() {
         this.notifier.on("notified", data => {
             console.log("internal onnotified", data);
-            for (const cb of this.onNotified) {
-                cb(data);
+            if (differenceInSeconds(new Date(data.published), add(new Date(), {minutes: 1})) < 60) {
+                for (const cb of this.onNotified) {
+                    cb(data);
+                }
+            } else {
+                console.log("activated the guard for edited/removed videos")
             }
         });
 

@@ -17,6 +17,8 @@ declare module "youtube-notification" {
             name: string;
             link: string;
         }
+        published: Date,
+        updated: Date,
     }
 
     export interface UnsubscribeEvent {

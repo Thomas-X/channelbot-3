@@ -39,6 +39,11 @@ export class Reddit implements IService {
             username: vars.REDDIT_USERNAME,
             password: vars.REDDIT_PASSWORD
         });
+        // we really don't wanna be throttled >:)
+        this.client.config({
+            continueAfterRatelimitError: true,
+            requestDelay: 1050
+        });
         this.channelRepository = getConnection()
             .getRepository(Channel);
     }

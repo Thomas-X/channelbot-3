@@ -9,22 +9,20 @@ import {NewReplacesTheOld} from "./models/NewReplacesTheOld";
 export class Core {
 
     constructor(
-        // private readonly youtubeNotifier: YoutubeNotifier,
-        // private readonly subscriptionManager: SubscriptionManager,
-        // private readonly redis: Redis,
-        // private readonly reddit: Reddit
-        private readonly newReplacesTheOld: NewReplacesTheOld
+        private readonly youtubeNotifier: YoutubeNotifier,
+        private readonly subscriptionManager: SubscriptionManager,
+        private readonly redis: Redis,
+        private readonly reddit: Reddit
     ) {
     }
 
     // Setup services
     async main() {
-        await this.newReplacesTheOld.setup();
-        // await this.reddit.setup();
-        // await this.youtubeNotifier.setup();
-        //
-        // await this.redis.setup();
-        // await this.subscriptionManager.setup();
+        await this.reddit.setup();
+        await this.youtubeNotifier.setup();
+
+        await this.redis.setup();
+        await this.subscriptionManager.setup();
         console.log("started")
     }
 }

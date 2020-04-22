@@ -22,9 +22,9 @@ import {EnvOpts, EnvReturnTypecasted} from "./services/Env";
             "build/models/**/*.js"
         ],
         synchronize: true,
-        // logging: true
+        logging: true
     });
-    
+
     let core = Container.get(Core);
     await core.main();
 })();

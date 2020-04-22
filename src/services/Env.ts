@@ -33,8 +33,7 @@ export interface EnvOpts {
 }
 
 export type EnvReturnTypecasted =
-    Omit<Omit<Omit<Omit<EnvOpts, 'PORT'>
-        , 'MYSQL_PORT'>, 'REDIS_DB_NAME'>, 'REDIS_DB_PORT'> & {
+    Omit<EnvOpts, 'PORT' | 'MYSQL_PORT' | 'REDIS_DB_NAME' | 'REDIS_DB_PORT'> & {
     PORT: number,
     MYSQL_PORT: number,
     REDIS_DB_NAME: number,

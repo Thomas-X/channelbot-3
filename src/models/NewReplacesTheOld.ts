@@ -4,6 +4,19 @@ import {IService} from "../services/interfaces/IService";
 import snoowrap from "snoowrap";
 import fs from "fs";
 import path from "path";
+import {getConnection} from "typeorm";
+import {Channel} from "./Channel";
+
+type OldChannel = {
+    channel: string;
+    channel_id: string;
+    subreddit: string;
+    user: string;
+    register_date: number;
+    upload_playlist: string;
+    last_videos: string[];
+    last_check: number;
+}
 
 @Service()
 export class NewReplacesTheOld implements IService{
@@ -25,17 +38,7 @@ export class NewReplacesTheOld implements IService{
         })
     }
 
-    async setup(): Promise<void> {
-        type OldChannel = {
-            channel: string;
-            channel_id: string;
-            subreddit: string;
-            user: string;
-            register_date: number;
-            upload_playlist: string;
-            last_videos: string[];
-            last_check: number;
-        }
+    async migrate() {
         const old = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "channels.json"), {encoding: "utf8"})) as OldChannel[];
         const promises = [];
         let i =0;
@@ -50,5 +53,26 @@ export class NewReplacesTheOld implements IService{
             await new Promise(resolve => setTimeout(() => resolve(), 1200))
         }
         await Promise.all(promises);
+    }
+
+    async migrateUserPermissions() {
+        const old = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "..", "channels.json"), {encoding: "utf8"})) as OldChannel[];
+        const c = getConnection().getRepository(Channel);
+        for (const channel of old) {
+            const a = await c.find({
+                where: {
+                    subreddit: channel.subreddit,
+                    channel_id: channel.channel_id
+                }
+            });
+            for (const existingChannel of a) {
+                existingChannel.user = channel.user;
+                await existingChannel.save();
+            }
+        }
+    }
+
+    async setup(): Promise<void> {
+        await this.migrateUserPermissions()
     }
 }

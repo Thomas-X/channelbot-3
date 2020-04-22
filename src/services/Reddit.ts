@@ -25,6 +25,9 @@ type CommandValues = {
 export class Reddit implements IService {
     client: snoowrap;
     private channelRepository: Repository<Channel>;
+    // solves an issue where IF not all messages are processed before the next iter loop
+    // the bot would read it's own messages and end up in a race condition, causing it to spam "You've already added X to me" to the user.
+    private waitForLastIter: boolean = false;
 
     constructor(
         private readonly env: Env,
@@ -87,12 +90,23 @@ export class Reddit implements IService {
     removeCommandParser = async (vals: CommandValues, message: PrivateMessage) => {
         const exists = await this.channelRepository.findOne({
             where: {
-                user: message.author.name,
                 subreddit: vals.subreddit,
                 channel_id: vals.channel_id
             }
         });
-        if (!exists || exists.user !== message.author.name) return "I'm sorry, but you either don't own this association or it does not exist.";
+
+        // perms
+        if (!exists) {
+            return "I'm sorry, but that association does not not exist.";
+        } else {
+            const isMod = this.client.getSubreddit(vals.subreddit)
+                .getModerators()
+                .filter(x => x.name === message.author.name)
+                .length === 1;
+            if (!isMod) {
+                return "You are not a mod of this subreddit you are trying to add, how silly of you!"
+            }
+        }
 
         await this.youtubeNotifier.notifier.unsubscribe(exists.channel_id);
         await this.redis.del(exists.id);
@@ -107,7 +121,9 @@ export class Reddit implements IService {
                 subreddit: vals.subreddit,
             }
         });
-        if (!exists || exists.length === 0) return "I'm sorry, but you either don't own this association or it does not exist.";
+        if (!exists || exists.length === 0) {
+            return "I'm sorry, but that association does not not exist.";
+        }
 
         let str = "";
 
@@ -115,10 +131,12 @@ export class Reddit implements IService {
             if (a.subreddit !== b.subreddit) return -1;
             if (b.subreddit !== a.subreddit) return 1;
             return 0;
-        });
+        })
+            .filter(x => this.client.getSubreddit(x.subreddit).getModerators().filter(y => y.name === x.user));
+        if (s.length === 0) return "You are not a moderator in any of the subreddits I have, weird!";
 
         for (const channel of s) {
-            const a = `subreddit: \n**${channel.subreddit}**\nchannel_id:**${channel.channel_id}**\n\n`;
+            const a = `subreddit: \n\n**${channel.subreddit}**\n\nchannel_id:**${channel.channel_id}**\n\n\n\n`;
             if (str.length === 0) {
                 str = a
             } else {
@@ -207,6 +225,7 @@ export class Reddit implements IService {
 
     // Check unread messages
     run = async () => {
+        this.waitForLastIter = true;
         const messages = await this.client.getUnreadMessages();
         console.log("messages: ", messages);
         for (const message of messages) {
@@ -221,7 +240,6 @@ export class Reddit implements IService {
                         .catch(err => console.log(err));
                 })
                 .catch(err => console.log(err));
-
         }
 
     };
@@ -243,7 +261,16 @@ export class Reddit implements IService {
                 })
                 .catch(err => console.log(err));
         });
-        setInterval(this.run, 30000);
+        setInterval(() => {
+            if (!this.waitForLastIter) {
+                this.run()
+                    .then(x => this.waitForLastIter = false)
+                    .catch(x => {
+                        this.waitForLastIter = false;
+                        console.log(x);
+                    })
+            }
+        }, 20000);
     }
 
 }

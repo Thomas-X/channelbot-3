@@ -2,6 +2,8 @@ import {IService} from "./interfaces/IService";
 import {Service} from "typedi";
 import {Redis} from "./Redis";
 import {YoutubeNotifier} from "./YoutubeNotifier";
+import {getConnection} from "typeorm";
+import {Channel} from "../models/Channel";
 
 @Service()
 export class SubscriptionManager implements IService {
@@ -19,11 +21,27 @@ export class SubscriptionManager implements IService {
         const subscribes = [];
         for (const key of keys) {
             const time = Number(await this.redis.get(key));
-            if (time - now < 10000) {
-                console.log("re-subscribing", time, now, time-now);
+            // if the difference is higher than 0, it means it is in the past so we should resubscribe!
+            if (time - now > 0) {
+                console.log("re-subscribing", time, now, time - now);
                 subscribes.push(new Promise((resolve) => {
-                    this.youtubeNotifier.notifier.subscribe(key);
-                    resolve();
+                    getConnection()
+                        .getRepository(Channel)
+                        .findOne({
+                            where: {
+                                id: key
+                            }
+                        })
+                        .then(channel => {
+                            if (!channel || !channel.channel_id) throw new Error("channel without channel_id that needs to be resubscribed, crashing..");
+                            this.youtubeNotifier.notifier.subscribe(channel.channel_id);
+                            this.redis.set(key, String((Date.now() / 1000) + (432000 - 300)))
+                                .then(x => {
+                                    resolve();
+                                })
+                                .catch(err => console.log(err));
+                        })
+                        .catch(err => console.log(err));
                 }));
             }
         }

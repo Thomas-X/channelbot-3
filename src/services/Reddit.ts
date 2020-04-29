@@ -99,10 +99,10 @@ export class Reddit implements IService {
         if (!exists) {
             return "I'm sorry, but that association does not not exist.";
         } else {
-            const isMod = this.client.getSubreddit(vals.subreddit)
-                .getModerators()
+            const isMod = (await this.client.getSubreddit(vals.subreddit)
+                .getModerators())
                 .filter(x => x.name === message.author.name)
-                .length === 1;
+                .length > 0;
             if (!isMod) {
                 return "You are not a mod of this subreddit you are trying to add, how silly of you!"
             }
@@ -127,12 +127,12 @@ export class Reddit implements IService {
 
         let str = "";
 
-        const s = exists.sort((a, b) => {
+        const s = await Promise.all(exists.sort((a, b) => {
             if (a.subreddit !== b.subreddit) return -1;
             if (b.subreddit !== a.subreddit) return 1;
             return 0;
         })
-            .filter(x => this.client.getSubreddit(x.subreddit).getModerators().filter(y => y.name === x.user));
+            .filter(async (x) => (await this.client.getSubreddit(x.subreddit).getModerators()).filter(y => y.name === x.user)));
         if (s.length === 0) return "You are not a moderator in any of the subreddits I have, weird!";
 
         for (const channel of s) {

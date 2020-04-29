@@ -7,6 +7,7 @@ import {Channel} from "../models/Channel";
 
 @Service()
 export class SubscriptionManager implements IService {
+    isRunning: boolean = false;
 
     constructor(
         private readonly redis: Redis,
@@ -16,6 +17,7 @@ export class SubscriptionManager implements IService {
 
     // This method checks every X seconds if the subscriptions with the pubsubhubbub API have to be refreshed
     run = async () => {
+        this.isRunning = true;
         const keys = await this.redis.keys("*");
         const now = Date.now() / 1000;
         const subscribes = [];
@@ -24,7 +26,7 @@ export class SubscriptionManager implements IService {
             // if the difference is higher than 0, it means it is in the past so we should resubscribe!
             if (time - now > 0) {
                 console.log("re-subscribing", time, now, time - now);
-                subscribes.push(new Promise((resolve) => {
+                subscribes.push(new Promise(async (resolve) => {
                     getConnection()
                         .getRepository(Channel)
                         .findOne({
@@ -34,6 +36,7 @@ export class SubscriptionManager implements IService {
                         })
                         .then(channel => {
                             if (!channel || !channel.channel_id) throw new Error("channel without channel_id that needs to be resubscribed, crashing..");
+
                             this.youtubeNotifier.notifier.subscribe(channel.channel_id);
                             this.redis.set(key, String((Date.now() / 1000) + (432000 - 300)))
                                 .then(x => {
@@ -43,12 +46,18 @@ export class SubscriptionManager implements IService {
                         })
                         .catch(err => console.log(err));
                 }));
+                // wait a second between requests to not get throttled
+                await new Promise(() => setTimeout(resolve2 => resolve2(), 1000));
             }
         }
         await Promise.all(subscribes);
     };
 
     async setup(): Promise<void> {
-        setInterval(this.run, 10000);
+        setInterval(async () => {
+            if (!this.isRunning) {
+                await this.run;
+            }
+        }, 10000);
     }
 }

@@ -51,6 +51,7 @@ export class SubscriptionManager implements IService {
             }
         }
         await Promise.all(subscribes);
+        this.isRunning = false;
     };
 
     async setup(): Promise<void> {

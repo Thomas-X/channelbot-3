@@ -235,6 +235,7 @@ export class Reddit implements IService {
                         .then(x => console.log("deleted message from inbox"))
                         .catch(x => console.log(x));
                 }
+                continue;
             }
             // mark as read incase it's a message we really can't process, and we don't want to get stuck on that message every cycle.
             await message.markAsRead()

@@ -227,10 +227,17 @@ export class Reddit implements IService {
     run = async () => {
         this.waitForLastIter = true;
         const messages = await this.client.getUnreadMessages();
-        console.log("messages: ", messages);
         for (const message of messages) {
+            if (!message.markAsRead || typeof message.markAsRead !== "function") {
+                console.log("skipping message which can not be set to read, attempting to delete from inbox");
+                if (message.deleteFromInbox && typeof message.deleteFromInbox === "function") {
+                    message.deleteFromInbox()
+                        .then(x => console.log("deleted message from inbox"))
+                        .catch(x => console.log(x));
+                }
+            }
             // mark as read incase it's a message we really can't process, and we don't want to get stuck on that message every cycle.
-            message.markAsRead()
+            await message.markAsRead()
                 .then(async (x) => {
                     console.log("read ", x);
                     message.reply(

@@ -1,3 +1,7 @@
+declare module "lodasync" {
+    export function filterAsync(func: any, array: any[]): any[]
+}
+
 declare module "youtube-notification" {
 
     export interface SubscribeEvent {
@@ -43,6 +47,7 @@ declare module "youtube-notification" {
         on(eventName: "notified", cb: (data: VideoEvent) => void)
 
         subscribe(channelId: string | string[])
+
         unsubscribe(channelId: string | string[])
     }
 }

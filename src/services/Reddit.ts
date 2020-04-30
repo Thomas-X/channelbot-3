@@ -8,6 +8,7 @@ import {Redis} from "./Redis";
 import {YoutubeNotifier} from "./YoutubeNotifier";
 import {VideoEvent} from "youtube-notification";
 import axios from "axios";
+import {filterAsync} from 'lodasync'
 
 export enum Commands {
     list = "list",
@@ -99,12 +100,11 @@ export class Reddit implements IService {
         if (!exists) {
             return "I'm sorry, but that association does not not exist.";
         } else {
-            const isMod = (await this.client.getSubreddit(vals.subreddit)
+            const mods = (await this.client.getSubreddit(vals.subreddit)
                 .getModerators())
-                .filter(x => x.name === message.author.name)
-                .length > 0;
-            if (!isMod) {
-                return "You are not a mod of this subreddit you are trying to add, how silly of you!"
+                .filter(x => x.name === message.author.name);
+            if (mods.length === 0) {
+                return "You are not a mod of this subreddit you are trying to remove, how silly of you!"
             }
         }
 
@@ -127,12 +127,15 @@ export class Reddit implements IService {
 
         let str = "";
 
-        const s = await Promise.all(exists.sort((a, b) => {
+        const s = await filterAsync(async (channel: Channel) => {
+            return (await this.client.getSubreddit(channel.subreddit).getModerators())
+                .filter(mod => mod.name === channel.user)
+                .length > 0;
+        }, exists.sort((a, b) => {
             if (a.subreddit !== b.subreddit) return -1;
             if (b.subreddit !== a.subreddit) return 1;
             return 0;
-        })
-            .filter(async (x) => (await this.client.getSubreddit(x.subreddit).getModerators()).filter(y => y.name === x.user)));
+        }));
         if (s.length === 0) return "You are not a moderator in any of the subreddits I have, weird!";
 
         for (const channel of s) {

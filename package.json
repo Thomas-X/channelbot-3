@@ -4,9 +4,11 @@
   "description": "",
   "main": "main.ts",
   "scripts": {
-    "compile": "rm -rf build/ && tsc --skipLibCheck && node build/main.js",
-    "start:dev": "nodemon -e ts --exec \"npm run compile\"",
-    "start": "npm run start:dev"
+    "compile": "rm -rf build/ && tsc --skipLibCheck",
+    "run": "npm run compile && node build/main.js",
+    "start:dev": "nodemon -e ts --exec \"npm run run\"",
+    "start": "npm run start:dev",
+    "deploy": "npm run compile && pm2 delete channelbot3 && cp .env build/.env && pm2 start build/main.js --name=channelbot3"
   },
   "author": "Thomas-X",
   "license": "MIT",

@@ -36,7 +36,6 @@ export class SubscriptionManager implements IService {
                         })
                         .then(channel => {
                             if (!channel || !channel.channel_id) throw new Error("channel without channel_id that needs to be resubscribed, crashing..");
-
                             this.youtubeNotifier.notifier.subscribe(channel.channel_id);
                             this.redis.set(key, String((Date.now() / 1000) + (432000 - 300)))
                                 .then(x => {
@@ -47,7 +46,7 @@ export class SubscriptionManager implements IService {
                         .catch(err => console.log(err));
                 }));
                 // wait a second between requests to not get throttled
-                await new Promise(() => setTimeout(resolve2 => resolve2(), 1000));
+                await new Promise(resolve => setTimeout(() => resolve(), 1000));
             }
         }
         await Promise.all(subscribes);
@@ -57,7 +56,7 @@ export class SubscriptionManager implements IService {
     async setup(): Promise<void> {
         setInterval(async () => {
             if (!this.isRunning) {
-                await this.run;
+                await this.run();
             }
         }, 10000);
     }

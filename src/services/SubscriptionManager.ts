@@ -25,8 +25,6 @@ export class SubscriptionManager implements IService {
         for (const key of keys) {
             const time = Number(await this.redis.get(key));
 
-            console.log("Time till resubscribe in s: ", time - now, time - now > 0);
-
             // if the difference is higher than 0, it means it is in the past so we should resubscribe!
             if (time - now < 0) {
                 // wait a second between requests to not get throttled

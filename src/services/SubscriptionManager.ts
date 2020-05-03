@@ -21,7 +21,6 @@ export class SubscriptionManager implements IService {
         const keys = await this.redis.keys("*");
         const now = Date.now() / 1000;
         const channelRepository = getConnection().getRepository(Channel);
-        console.log("keys from redis: ", keys);
         for (const key of keys) {
             const time = Number(await this.redis.get(key));
 

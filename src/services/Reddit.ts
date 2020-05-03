@@ -9,6 +9,7 @@ import {YoutubeNotifier} from "./YoutubeNotifier";
 import {VideoEvent} from "youtube-notification";
 import axios from "axios";
 import {filterAsync} from 'lodasync'
+import {Post} from "../models/Post";
 
 export enum Commands {
     list = "list",
@@ -214,7 +215,19 @@ export class Reddit implements IService {
         return r;
     };
 
-    postVideo = (channel: Channel, data: VideoEvent) => {
+    postVideo = async (channel: Channel, data: VideoEvent) => {
+        const postRepository = await getConnection().getRepository(Post);
+        const existingPost = postRepository
+            .findOne({
+                where: {
+                    channel_id: channel.channel_id,
+                    subreddit: channel.subreddit,
+                    video_id: data.video.id
+                }
+            });
+
+        if (!!existingPost) return;
+
         this.client.getSubreddit(channel.subreddit)
             // Docs say more values are allowed than what is in typings (submitlink opts)
             .submitLink(<any>{
@@ -222,7 +235,15 @@ export class Reddit implements IService {
                 title: data.video.title,
                 sendReplies: false
             })
-            .then(x => console.log(x))
+            .then(x => {
+                const post = new Post();
+                post.video_id = data.video.id;
+                post.subreddit = channel.subreddit;
+                post.channel_id = channel.channel_id;
+                post.save();
+
+                console.log(x)
+            })
             .catch(err => console.log(err));
     };
 

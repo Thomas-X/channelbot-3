@@ -36,13 +36,9 @@ export class YoutubeNotifier implements IService {
     async registerEvents() {
         this.notifier.on("notified", data => {
             console.log("internal onnotified", data);
-            if (differenceInSeconds(new Date(data.published), new Date()) <= 30) {
                 for (const cb of this.onNotified) {
                     cb(data);
                 }
-            } else {
-                console.log("activated the guard for edited/removed videos")
-            }
         });
 
         this.notifier.on("subscribe", data => {

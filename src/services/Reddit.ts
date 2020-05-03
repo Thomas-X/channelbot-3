@@ -217,7 +217,7 @@ export class Reddit implements IService {
 
     postVideo = async (channel: Channel, data: VideoEvent) => {
         const postRepository = await getConnection().getRepository(Post);
-        const existingPost = postRepository
+        const existingPost = await postRepository
             .findOne({
                 where: {
                     channel_id: channel.channel_id,

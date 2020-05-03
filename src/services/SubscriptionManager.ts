@@ -21,13 +21,16 @@ export class SubscriptionManager implements IService {
         const keys = await this.redis.keys("*");
         const now = Date.now() / 1000;
         const channelRepository = getConnection().getRepository(Channel);
+        console.log("keys from redis: ", keys);
         for (const key of keys) {
-            // wait a second between requests to not get throttled
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
             const time = Number(await this.redis.get(key));
+
+            console.log("Time till resubscribe in s: ", time - now, time - now > 0);
+
             // if the difference is higher than 0, it means it is in the past so we should resubscribe!
-            if (time - now > 0) {
+            if (time - now < 0) {
+                // wait a second between requests to not get throttled
+                await new Promise(resolve => setTimeout(resolve, 450));
                 console.log("re-subscribing", time, now, time - now);
                 const channel = await channelRepository
                     .findOne({

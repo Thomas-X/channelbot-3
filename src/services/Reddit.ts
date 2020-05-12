@@ -240,6 +240,7 @@ export class Reddit implements IService {
                 post.video_id = data.video.id;
                 post.subreddit = channel.subreddit;
                 post.channel_id = channel.channel_id;
+                post.submission_url = x.url ?? "";
                 post.save();
 
                 console.log(x)

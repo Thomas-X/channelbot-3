@@ -17,6 +17,9 @@ export class Post extends OverrideBaseEntity {
     @Column()
     video_id!: string;
 
+    @Column()
+    submission_url!: string;
+
     // Always the same as channel_id in dataset, not needed
     // upload_playlist!: number;
 

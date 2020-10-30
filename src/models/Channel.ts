@@ -1,5 +1,5 @@
-import {BaseEntity, Column, Entity, PrimaryColumn} from "typeorm";
-import {OverrideBaseEntity} from "./OverrideBaseEntity";
+import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { OverrideBaseEntity } from './OverrideBaseEntity';
 
 @Entity()
 export class Channel extends OverrideBaseEntity {

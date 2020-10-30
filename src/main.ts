@@ -1,12 +1,10 @@
-import {createConnection} from "typeorm";
+import { createConnection } from 'typeorm';
+import 'reflect-metadata';
+import { Container } from 'typedi';
+import { Core } from './Core';
+import { EnvReturnTypecasted } from './services/Env';
 
 require("dotenv").config();
-import "reflect-metadata"
-import YouTubeNotifier, {SubscribeEvent, OnEmit, VideoEvent} from "youtube-notification";
-import {Container} from "typedi";
-import {Core} from "./Core";
-import {EnvOpts, EnvReturnTypecasted} from "./services/Env";
-
 
 (async () => {
     // quick hack because dependency issues

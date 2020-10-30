@@ -1,5 +1,5 @@
-import {BaseEntity, BeforeInsert, CreateDateColumn, UpdateDateColumn} from "typeorm";
-import uuid from "uuid/v4";
+import { BaseEntity, BeforeInsert, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import uuid from 'uuid/v4';
 
 export abstract class OverrideBaseEntity extends BaseEntity {
     abstract id: string;

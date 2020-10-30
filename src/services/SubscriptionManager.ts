@@ -1,9 +1,9 @@
-import {IService} from "./interfaces/IService";
-import {Service} from "typedi";
-import {Redis} from "./Redis";
-import {YoutubeNotifier} from "./YoutubeNotifier";
-import {getConnection} from "typeorm";
-import {Channel} from "../models/Channel";
+import { IService } from './interfaces/IService';
+import { Service } from 'typedi';
+import { Redis } from './Redis';
+import { YoutubeNotifier } from './YoutubeNotifier';
+import { getConnection } from 'typeorm';
+import { Channel } from '../models/Channel';
 
 @Service()
 export class SubscriptionManager implements IService {

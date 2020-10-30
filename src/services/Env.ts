@@ -1,4 +1,4 @@
-import {Service} from "typedi";
+import { Service } from 'typedi';
 
 export interface EnvOpts {
     // pubhubsubbub stuff
@@ -67,15 +67,15 @@ export class Env {
             HUB_CALLBACK,
             HUB_PATH,
             HUB_SECRET,
-            PORT: Number(PORT) as number,
+            PORT: Number(PORT),
             MYSQL_DATABASE_NAME,
             MYSQL_HOST,
             MYSQL_PASSWORD,
-            MYSQL_PORT: Number(MYSQL_PORT) as number,
+            MYSQL_PORT: Number(MYSQL_PORT),
             MYSQL_USERNAME,
             REDIS_DB_HOST,
-            REDIS_DB_PORT: Number(REDIS_DB_PORT) as number,
-            REDIS_DB_NAME: Number(REDIS_DB_NAME) as number,
+            REDIS_DB_PORT: Number(REDIS_DB_PORT),
+            REDIS_DB_NAME: Number(REDIS_DB_NAME),
             REDDIT_USER_AGENT,
             REDDIT_CLIENT_ID,
             REDDIT_CLIENT_SECRET,

@@ -1,5 +1,5 @@
-import {BaseEntity, Column, Entity, PrimaryColumn} from "typeorm";
-import {OverrideBaseEntity} from "./OverrideBaseEntity";
+import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { OverrideBaseEntity } from './OverrideBaseEntity';
 
 // This structure could be a lot more normalized instead of how it is right now, but I really can't bother with the added complexity of that (not needed in this scope)
 @Entity()

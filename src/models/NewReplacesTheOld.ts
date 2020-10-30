@@ -1,11 +1,11 @@
-import {Service} from "typedi";
-import {Env} from "../services/Env";
-import {IService} from "../services/interfaces/IService";
-import snoowrap from "snoowrap";
-import fs from "fs";
-import path from "path";
-import {getConnection} from "typeorm";
-import {Channel} from "./Channel";
+import { Service } from 'typedi';
+import { Env } from '../services/Env';
+import { IService } from '../services/interfaces/IService';
+import snoowrap from 'snoowrap';
+import fs from 'fs';
+import path from 'path';
+import { getConnection } from 'typeorm';
+import { Channel } from './Channel';
 
 type OldChannel = {
     channel: string;

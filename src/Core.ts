@@ -1,9 +1,8 @@
-import {Service} from "typedi";
-import {YoutubeNotifier} from "./services/YoutubeNotifier";
-import {SubscriptionManager} from "./services/SubscriptionManager";
-import {Redis} from "./services/Redis";
-import {Reddit} from "./services/Reddit";
-import {NewReplacesTheOld} from "./models/NewReplacesTheOld";
+import { Service } from 'typedi';
+import { YoutubeNotifier } from './services/YoutubeNotifier';
+import { SubscriptionManager } from './services/SubscriptionManager';
+import { Redis } from './services/Redis';
+import { Reddit } from './services/Reddit';
 
 @Service()
 export class Core {

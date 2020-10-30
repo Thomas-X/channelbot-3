@@ -1,15 +1,15 @@
-import {Inject, Service} from "typedi";
-import {IService} from "./interfaces/IService";
-import {Env} from "./Env";
-import snoowrap, {PrivateMessage, Comment} from "snoowrap";
-import {getConnection, Repository} from "typeorm";
-import {Channel} from "../models/Channel";
-import {Redis} from "./Redis";
-import {YoutubeNotifier} from "./YoutubeNotifier";
-import {VideoEvent} from "youtube-notification";
-import axios from "axios";
-import {filterAsync} from 'lodasync'
-import {Post} from "../models/Post";
+import { Service } from 'typedi';
+import { IService } from './interfaces/IService';
+import { Env } from './Env';
+import snoowrap, { PrivateMessage } from 'snoowrap';
+import { getConnection, Repository } from 'typeorm';
+import { Channel } from '../models/Channel';
+import { Redis } from './Redis';
+import { YoutubeNotifier } from './YoutubeNotifier';
+import { VideoEvent } from 'youtube-notification';
+import axios from 'axios';
+import { filterAsync } from 'lodasync';
+import { Post } from '../models/Post';
 
 export enum Commands {
     list = "list",

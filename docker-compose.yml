@@ -15,6 +15,8 @@ services:
     restart: always
 
   node:
+    ports:
+      - "7463:7463"
     image: oberonamsterdam/pm2-git:12-alpine
     restart: always
     volumes:

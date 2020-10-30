@@ -1,11 +1,7 @@
-import {IService} from "./interfaces/IService";
-import {Inject, Service} from "typedi";
-import YouTubeNotifier, {SubscribeEvent, UnsubscribeEvent, VideoEvent} from "youtube-notification";
-import {Env} from "./Env";
-import {getConnection} from "typeorm";
-import {Channel} from "../models/Channel";
-import {Reddit} from "./Reddit";
-import {add, differenceInSeconds} from "date-fns";
+import { IService } from './interfaces/IService';
+import { Service } from 'typedi';
+import YouTubeNotifier, { SubscribeEvent, UnsubscribeEvent, VideoEvent } from 'youtube-notification';
+import { Env } from './Env';
 
 @Service({global: true})
 export class YoutubeNotifier implements IService {

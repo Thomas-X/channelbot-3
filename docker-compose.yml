@@ -1,0 +1,26 @@
+version: '3.1'
+
+services:
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_USER: ${MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE_NAME}
+
+  redis:
+    image: redis
+    restart: always
+
+  node:
+    ports:
+      - "7463:7463"
+    image: oberonamsterdam/pm2-git:12-alpine
+    restart: always
+    volumes:
+      - .:/app/:delegated
+      - $HOME/.ssh/known_hosts:/root/.ssh/known_hosts
+      - $HOME/.ssh/id_rsa:/root/.ssh/id_rsa
+    entrypoint: ["/app/start.sh"]

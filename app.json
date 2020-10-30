@@ -1,0 +1,4 @@
+{
+    "name" : "channelbot-3",
+    "script" : "/app/build/main.js"
+}

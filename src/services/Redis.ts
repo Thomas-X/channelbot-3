@@ -1,8 +1,8 @@
-import {Service} from "typedi";
-import {IService} from "./interfaces/IService";
-import {promisify} from "util";
-import redis, {RedisClient} from "redis";
-import {Env} from "./Env";
+import { Service } from 'typedi';
+import { IService } from './interfaces/IService';
+import { promisify } from 'util';
+import redis, { RedisClient } from 'redis';
+import { Env } from './Env';
 
 @Service()
 export class Redis implements IService {

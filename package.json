@@ -18,7 +18,7 @@
     "@types/redis": "^2.8.17",
     "@types/snoowrap": "^1.19.0",
     "@types/uuid": "^7.0.2",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "date-fns": "^2.12.0",
     "dotenv": "^8.2.0",
     "lodasync": "^1.0.7",

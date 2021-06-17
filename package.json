@@ -24,7 +24,7 @@
     "lodasync": "^1.0.7",
     "mysql": "^2.18.1",
     "nodemon": "^2.0.3",
-    "redis": "^3.0.2",
+    "redis": "^3.1.1",
     "reflect-metadata": "^0.1.13",
     "snoowrap": "^1.21.0",
     "typedi": "^0.8.0",

@@ -23,7 +23,7 @@
     "dotenv": "^8.2.0",
     "lodasync": "^1.0.7",
     "mysql": "^2.18.1",
-    "nodemon": "^2.0.3",
+    "nodemon": "^2.0.20",
     "redis": "^3.1.1",
     "reflect-metadata": "^0.1.13",
     "snoowrap": "^1.21.0",
